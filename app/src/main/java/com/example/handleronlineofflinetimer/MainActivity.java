@@ -34,6 +34,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_main);
         timerTv = findViewById(R.id.timerTv);
 
+        serviceIntent = new Intent(this, ForegroundServiceTimer.class);
+
         timerReceiver = new TimerReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ForegroundServiceTimer.MY_ACTION);
@@ -46,6 +48,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
         stopBtn.setOnClickListener(this);
 
         customHandlerNetworkChecker.postDelayed(updateNetworkCheckerThread, 0);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(timerReceiver);
     }
 
     private class TimerReceiver extends BroadcastReceiver {
@@ -69,7 +77,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.startBtn) {
-            serviceIntent = new Intent(this, ForegroundServiceTimer.class);
             ContextCompat.startForegroundService(this, serviceIntent);
             isTimerStartedFromButton = true;
         } else if (v.getId() == R.id.stopBtn) {
